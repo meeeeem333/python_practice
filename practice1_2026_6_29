@@ -1,53 +1,159 @@
 #claude让做的小练习 
 #1.成绩统计 
 scores = [88, 92, 75, 63, 95, 81, 70, 55, 98, 84]
-sum = 0
-max = 0
-
-min = 100
+total = 0
+max_score = 0
+min_score = 100
+#sum,max,min改成total,max_score,min_score
 suff = 0
 for i in scores:
-    sum += i
-    if i > max:
-        max = i
-    if i < min:
-        min = i
+    total += i
+    if i > max_score:
+        max_score = i
+    if i < min_score:
+        min_score = i
     if i >= 60:
         suff += 1
-avr = sum/len(scores)
-print(f"平均分为{avr},最高分为{max},最低分为{min},及格人数为{suff}")
+avr = total/len(scores)
+print(f"平均分为{avr},最高分为{max_score},最低分为{min_score},及格人数为{suff}")
 
 #2.单词计数
 text = input('请输入一段英文')
-corres = {}
+count_letter = {}
 i = 0
 while i < 26:
     letter = chr(ord('a')+i)
-    corres[letter] = 0
+    #ord转ASCII码 chr转字符
+    count_letter[letter] = 0
     for j in text:
         if j == letter:
-            corres[letter] += 1
+            count_letter[letter] += 1
     i += 1
-print(corres)
+print(count_letter)
+#高效写法:
+count_letter = {}
+for char in text:
+    if char.isalpha():
+    #isalpha判断是否都是字母
+        char = char.lower()
+        #转小写
+        count_letter[char] = count_letter.get(char,0) + 1
+        #get(char,0)返回键char的值 找不到就返回0
+print(count_letter)
+#上面是字母计数
+
+count_word = {}
+words = text.split(' ')
+#分隔符split 只有str有 列表没有
+for i in words:
+    if i in count_word:
+        count_word[i] += 1
+    else:
+        count_word[i] = 1
+print(count_word)
+i = 0
+max_count = []
+while i < 5:    
+    max_value = 0
+    for key,value in count_word.items():
+    #输出字典内容
+        if value >= max_value:
+            max_value = value
+            max_key = key
+    max_count.append(max_key)
+    del count_word[max_key]
+    i += 1
+print(max_count)
+#简化:
+count_word = {}
+words = text.split(' ')
+#分隔符split 只有str有 列表没有
+for i in words:
+    if i in count_word:
+        count_word[i] += 1
+    else:
+        count_word[i] = 1
+top5 = sorted(count_word.items(),key = lambda x:x[1],reverse = True)[:5]
+#sorted(要排序的东西, key=排序规则, reverse=是否倒序) 返回一个列表
+#count_word.items()把字典变成元组列表即[(键,值),(键,值),(键,值)]
+#lambda匿名函数 等同于：def 临时函数(x): return x[1] 即字典的值(键是x[0]) 相当于给字典的值排序
+print(top5)
+#上面是单词计数
             
 #3.简单函数
 def is_prime(n):
-    i = 2
-    while i <= n:
-        if n % i == 0 and i != n:
-            print(f"{n}不是质数")
-            break
-        i += 1
-    if i == n + 1:
-        print(f"{n}是质数")
-    prime = []
-    for j in range(2,101):        
+    if n == 1:
+        return False
+    else:
         i = 2
-        while i <= j:
-            if j % i == 0 and i != j:
-                break
-            i += 1
-        if i == j + 1:
-            prime.append(j)
-    print(prime)
-is_prime(int(input('请输入一个整数')))
+        while i <= n:
+        #优化为 while i <= n**0.5
+            if n % i == 0 and i != n:
+                return False
+            else:
+                i += 1
+        if i == n + 1:
+            return True    
+if is_prime(int(input('请输入一个整数'))) == True:
+    print('它是质数')
+else:
+    print('它不是质数')
+prime = []
+for j in range(1,101):        
+    if is_prime(j) == True:
+        prime.append(j)
+print(prime)
+
+#4.字典统计
+text = "人生得意须尽欢莫使金樽空对月天生我材必有用千金散尽还复来"
+count_word = {}
+for i in text:
+    if i in count_word:
+        count_word[i] += 1
+    else:
+        count_word[i] = 1
+i = 0
+max_count = []
+while i < 5:    
+    max_value = 0
+    for key,value in count_word.items():
+        if value >= max_value:
+            max_value = value
+            max_key = key
+    max_count.append(max_key)
+    del count_word[max_key]
+    i += 1
+print(max_count)
+#类似2 自己优化一下
+count_word = {}
+for i in text:
+    if i in count_word:
+        count_word[i] += 1
+    else:
+        count_word[i] = 1
+top5 = sorted(count_word.items(), key = lambda x:x[1], reverse=True)[:5]
+print(top5)
+
+#5.文件读写
+scores = [88, 92, 75, 63, 95, 81, 70, 55, 98, 84]
+score_file = open('scores.txt','w')
+for i in scores:
+    score_file.write(str(i))
+    score_file.write('\n')
+score_file.close()
+score_file_r = open('scores.txt','r')
+scores_in_file = score_file_r.readlines()
+#with可以不用手动close
+with open('scores.txt', 'r') as f:
+    lines = f.readlines()
+score_file_r.close()
+scores_list = []
+for i in scores_in_file:
+    score_i = i.split('\n')
+    scores_list.append(score_i[0])
+#int(i.strip())自动去掉字符串前后的空白格 制表符 换行符 在括号里面填东西可以去掉指定符号 lstrip去掉左边的 rstrip去掉右边的
+total = 0
+for i in scores_list:
+    total += int(i)
+avr = total/len(scores_list)
+print(f"scores的平均分是{avr}")
